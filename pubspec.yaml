@@ -1,0 +1,40 @@
+name: flutter_morphing_icons
+description: A Flutter package that provides smooth icon morphing animations between different states with customizable transitions and easing curves.
+version: 0.0.1
+homepage: https://github.com/Dhia-Bechattaoui/flutter_morphing_icons
+repository: https://github.com/Dhia-Bechattaoui/flutter_morphing_icons
+issue_tracker: https://github.com/Dhia-Bechattaoui/flutter_morphing_icons/issues
+documentation: https://pub.dev/documentation/flutter_morphing_icons
+topics:
+  - animation
+  - icons
+  - ui
+  - morphing
+  - transitions
+keywords:
+  - flutter
+  - animation
+  - icons
+  - morphing
+  - transitions
+  - ui
+  - smooth
+  - state
+  - widget
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  test: ^1.0.0
+
+flutter:
+  # No assets needed for this package
