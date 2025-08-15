@@ -154,6 +154,7 @@ class _MorphingIconState extends State<MorphingIcon>
 
   Widget _buildCrossFadeAnimation() {
     return AnimatedSwitcher(
+      key: ValueKey(_currentState),
       duration: _controller.config.duration,
       transitionBuilder: (Widget child, Animation<double> animation) {
         return FadeTransition(

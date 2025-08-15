@@ -63,45 +63,37 @@ class MorphingAnimationConfig {
 
   /// Creates a scale animation configuration
   MorphingAnimationConfig.scale({
-    Duration duration = const Duration(milliseconds: 300),
-    Curve curve = Curves.easeInOut,
+    required this.duration,
+    required this.curve,
     double scaleFactor = 1.2,
   })  : type = MorphingAnimationType.scale,
-        duration = duration,
-        curve = curve,
         customBuilder = null,
         parameters = {'scaleFactor': scaleFactor};
 
   /// Creates a slide animation configuration
   MorphingAnimationConfig.slide({
-    Duration duration = const Duration(milliseconds: 300),
-    Curve curve = Curves.easeInOut,
+    required this.duration,
+    required this.curve,
     Offset slideOffset = const Offset(0, -20),
   })  : type = MorphingAnimationType.slide,
-        duration = duration,
-        curve = curve,
         customBuilder = null,
         parameters = {'slideOffset': slideOffset};
 
   /// Creates a rotate animation configuration
   MorphingAnimationConfig.rotate({
-    Duration duration = const Duration(milliseconds: 300),
-    Curve curve = Curves.easeInOut,
+    required this.duration,
+    required this.curve,
     double rotationAngle = 0.5,
   })  : type = MorphingAnimationType.rotate,
-        duration = duration,
-        curve = curve,
         customBuilder = null,
         parameters = {'rotationAngle': rotationAngle};
 
   /// Creates a custom animation configuration
   MorphingAnimationConfig.custom({
     required Widget Function(Widget child, Animation<double> animation) builder,
-    Duration duration = const Duration(milliseconds: 300),
-    Curve curve = Curves.easeInOut,
+    required this.duration,
+    required this.curve,
   })  : type = MorphingAnimationType.custom,
-        duration = duration,
-        curve = curve,
         customBuilder = builder,
         parameters = const {};
 }

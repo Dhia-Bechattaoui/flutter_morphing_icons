@@ -95,11 +95,28 @@ class _MorphingIconsDemoState extends State<MorphingIconsDemo> {
 
   Widget _buildMorphingIcon() {
     final configs = [
-      MorphingAnimationConfig.crossFade(),
-      MorphingAnimationConfig.scale(scaleFactor: 1.3),
-      MorphingAnimationConfig.slide(slideOffset: const Offset(0, -20)),
-      MorphingAnimationConfig.rotate(rotationAngle: 0.5),
+      const MorphingAnimationConfig.crossFade(
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      ),
+      MorphingAnimationConfig.scale(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        scaleFactor: 1.3,
+      ),
+      MorphingAnimationConfig.slide(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        slideOffset: const Offset(0, -20),
+      ),
+      MorphingAnimationConfig.rotate(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        rotationAngle: 0.5,
+      ),
       MorphingAnimationConfig.custom(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
         builder: (child, animation) {
           return Transform.scale(
             scale: 1.0 + (animation.value * 0.3),
@@ -114,10 +131,10 @@ class _MorphingIconsDemoState extends State<MorphingIconsDemo> {
 
     return MorphingIcon(
       states: [
-        Icon(Icons.favorite_border, size: 64, color: Colors.red),
-        Icon(Icons.favorite, size: 64, color: Colors.red),
-        Icon(Icons.favorite_border, size: 64, color: Colors.blue),
-        Icon(Icons.favorite, size: 64, color: Colors.blue),
+        const Icon(Icons.favorite_border, size: 64, color: Colors.red),
+        const Icon(Icons.favorite, size: 64, color: Colors.red),
+        const Icon(Icons.favorite_border, size: 64, color: Colors.blue),
+        const Icon(Icons.favorite, size: 64, color: Colors.blue),
       ],
       config: configs[_currentAnimationType],
       onStateChanged: (state) {
@@ -139,8 +156,9 @@ class _MorphingIconsDemoState extends State<MorphingIconsDemo> {
             size: 32,
             color: Colors.green,
             config: MorphingAnimationConfig.scale(
-              scaleFactor: 1.2,
+              duration: const Duration(milliseconds: 300),
               curve: Curves.elasticOut,
+              scaleFactor: 1.2,
             ),
           ),
         ),
@@ -184,6 +202,8 @@ class _MorphingIconsDemoState extends State<MorphingIconsDemo> {
               ),
             ],
             config: MorphingAnimationConfig.slide(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
               slideOffset: const Offset(20, 0),
             ),
           ),
