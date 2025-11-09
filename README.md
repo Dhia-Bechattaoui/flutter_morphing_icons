@@ -4,7 +4,7 @@ A Flutter package that provides smooth icon morphing animations between differen
 
 [![pub package](https://img.shields.io/pub/v/flutter_morphing_icons.svg)](https://pub.dev/packages/flutter_morphing_icons)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Flutter](https://img.shields.io/badge/Flutter-3.10+-blue.svg)](https://flutter.dev)
+[![Flutter](https://img.shields.io/badge/Flutter-3.32+-blue.svg)](https://flutter.dev)
 
 ## Features
 
@@ -23,7 +23,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  flutter_morphing_icons: ^0.0.1
+  flutter_morphing_icons: ^0.1.0
 ```
 
 ### Basic Usage
@@ -113,18 +113,61 @@ Define your own animation logic.
 
 ```dart
 MorphingAnimationConfig.custom(
-  duration: Duration(milliseconds: 800),
+  duration: const Duration(milliseconds: 800),
   curve: Curves.easeInOut,
-  builder: (child, animation) {
-    return Transform.scale(
-      scale: animation.value,
-      child: Transform.rotate(
-        angle: animation.value * 2 * 3.14159,
-        child: child,
-      ),
-    );
+  parameters: {
+    'fade': true,
+    'fadeBegin': 0.2,
+    'fadeEnd': 1.0,
+    'scale': true,
+    'scaleBegin': 0.5,
+    'scaleEnd': 1.2,
+    'slide': true,
+    'slideBegin': const Offset(0, 0.2),
+    'slideEnd': Offset.zero,
+    'rotate': true,
+    'rotationBegin': 0.0,
+    'rotationEnd': 2 * math.pi,
   },
 )
+```
+
+### Full Custom Animation Widget
+
+```dart
+import 'dart:math' as math;
+
+class PulsingStar extends StatelessWidget {
+  const PulsingStar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MorphingIcon(
+      states: const [
+        Icon(Icons.star_border, size: 80, color: Colors.amber),
+        Icon(Icons.star, size: 80, color: Colors.amber),
+      ],
+      config: MorphingAnimationConfig.custom(
+        duration: const Duration(seconds: 2),
+        curve: Curves.easeInOut,
+        parameters: {
+          'fade': true,
+          'fadeBegin': 0.0,
+          'fadeEnd': 1.0,
+          'scale': true,
+          'scaleBegin': 0.5,
+          'scaleEnd': 1.3,
+          'rotate': true,
+          'rotationBegin': 0.0,
+          'rotationEnd': math.pi,
+          'slide': true,
+          'slideBegin': const Offset(0, 0.3),
+          'slideEnd': Offset.zero,
+        },
+      ),
+    );
+  }
+}
 ```
 
 ## API Reference
@@ -270,6 +313,20 @@ MorphingIcon(
   ),
 )
 ```
+
+## Platform Support
+
+This package is implemented entirely in Dart and is compatible with the following Flutter targets out of the box:
+
+- ✅ Android
+- ✅ iOS
+- ✅ Web
+- ✅ Windows
+- ✅ macOS
+- ✅ Linux
+- ✅ WASM-enabled Flutter builds
+
+No platform-specific code is required; the animations run anywhere Flutter runs.
 
 ## Contributing
 

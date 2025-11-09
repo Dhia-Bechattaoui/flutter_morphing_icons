@@ -4,7 +4,8 @@ import 'morphing_animation_types.dart';
 /// Controller for managing morphing icon state transitions
 class MorphingIconController extends ChangeNotifier {
   /// Current state of the icon
-  int _currentState = 0;
+  int _currentState;
+  int _previousState;
 
   /// List of available states
   final List<dynamic> _states;
@@ -26,24 +27,30 @@ class MorphingIconController extends ChangeNotifier {
   MorphingIconController({
     required List<dynamic> states,
     required TickerProvider vsync,
+    int initialState = 0,
     MorphingAnimationConfig? config,
-  })  : _states = states,
-        _config = config ?? const MorphingAnimationConfig() {
+  }) : assert(states.isNotEmpty, 'States cannot be empty'),
+       assert(
+         initialState >= 0 && initialState < states.length,
+         'Initial state must be within bounds',
+       ),
+       _states = states,
+       _currentState = initialState,
+       _previousState = initialState,
+       _config = config ?? const MorphingAnimationConfig() {
     _animationController = AnimationController(
       duration: _config.duration,
       vsync: vsync,
     );
-    _animation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: _config.curve,
-    ));
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: _config.curve),
+    );
+    _animationController.value = 1.0;
   }
 
   /// Current state index
   int get currentState => _currentState;
+  int get previousState => _previousState;
 
   /// Total number of states
   int get stateCount => _states.length;
@@ -60,47 +67,64 @@ class MorphingIconController extends ChangeNotifier {
   /// Animation configuration
   MorphingAnimationConfig get config => _config;
 
+  void _setState(int newState) {
+    if (newState == _currentState) return;
+    _previousState = _currentState;
+    _currentState = newState;
+    _animate();
+  }
+
   /// Moves to the next state with animation
   void next() {
     if (_currentState < _states.length - 1) {
-      _currentState++;
-      _animate();
+      _setState(_currentState + 1);
     }
   }
 
   /// Moves to the previous state with animation
   void previous() {
     if (_currentState > 0) {
-      _currentState--;
-      _animate();
+      _setState(_currentState - 1);
     }
   }
 
   /// Moves to a specific state with animation
   void goTo(int stateIndex) {
     if (stateIndex >= 0 && stateIndex < _states.length) {
-      _currentState = stateIndex;
-      _animate();
+      _setState(stateIndex);
     }
+  }
+
+  /// Jumps to a specific state without animation
+  void jumpTo(int stateIndex) {
+    if (stateIndex >= 0 && stateIndex < _states.length) {
+      _previousState = _currentState;
+      _currentState = stateIndex;
+      _animationController.value = 1.0;
+      notifyListeners();
+    }
+  }
+
+  /// Replays the current state's animation
+  void replay() {
+    _previousState = _currentState;
+    _animate();
   }
 
   /// Moves to the first state with animation
   void goToFirst() {
-    _currentState = 0;
-    _animate();
+    _setState(0);
   }
 
   /// Moves to the last state with animation
   void goToLast() {
-    _currentState = _states.length - 1;
-    _animate();
+    _setState(_states.length - 1);
   }
 
   /// Toggles between two states (useful for boolean states)
   void toggle() {
     if (_states.length == 2) {
-      _currentState = _currentState == 0 ? 1 : 0;
-      _animate();
+      _setState(_currentState == 0 ? 1 : 0);
     }
   }
 

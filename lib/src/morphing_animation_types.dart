@@ -31,7 +31,7 @@ class MorphingAnimationConfig {
 
   /// Custom animation builder (used when type is custom)
   final Widget Function(Widget child, Animation<double> animation)?
-      customBuilder;
+  customBuilder;
 
   /// Additional parameters for specific animation types
   final Map<String, dynamic> parameters;
@@ -56,44 +56,44 @@ class MorphingAnimationConfig {
     Duration duration = const Duration(milliseconds: 300),
     Curve curve = Curves.easeInOut,
   }) : this(
-          type: MorphingAnimationType.crossFade,
-          duration: duration,
-          curve: curve,
-        );
+         type: MorphingAnimationType.crossFade,
+         duration: duration,
+         curve: curve,
+       );
 
   /// Creates a scale animation configuration
   MorphingAnimationConfig.scale({
     required this.duration,
     required this.curve,
     double scaleFactor = 1.2,
-  })  : type = MorphingAnimationType.scale,
-        customBuilder = null,
-        parameters = {'scaleFactor': scaleFactor};
+  }) : type = MorphingAnimationType.scale,
+       customBuilder = null,
+       parameters = {'scaleFactor': scaleFactor};
 
   /// Creates a slide animation configuration
   MorphingAnimationConfig.slide({
     required this.duration,
     required this.curve,
     Offset slideOffset = const Offset(0, -20),
-  })  : type = MorphingAnimationType.slide,
-        customBuilder = null,
-        parameters = {'slideOffset': slideOffset};
+  }) : type = MorphingAnimationType.slide,
+       customBuilder = null,
+       parameters = {'slideOffset': slideOffset};
 
   /// Creates a rotate animation configuration
   MorphingAnimationConfig.rotate({
     required this.duration,
     required this.curve,
     double rotationAngle = 0.5,
-  })  : type = MorphingAnimationType.rotate,
-        customBuilder = null,
-        parameters = {'rotationAngle': rotationAngle};
+  }) : type = MorphingAnimationType.rotate,
+       customBuilder = null,
+       parameters = {'rotationAngle': rotationAngle};
 
   /// Creates a custom animation configuration
   MorphingAnimationConfig.custom({
-    required Widget Function(Widget child, Animation<double> animation) builder,
+    Widget Function(Widget child, Animation<double> animation)? builder,
     required this.duration,
     required this.curve,
-  })  : type = MorphingAnimationType.custom,
-        customBuilder = builder,
-        parameters = const {};
+    this.parameters = const {},
+  }) : type = MorphingAnimationType.custom,
+       customBuilder = builder;
 }

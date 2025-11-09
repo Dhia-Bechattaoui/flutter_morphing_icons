@@ -1,11 +1,14 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_morphing_icons/flutter_morphing_icons.dart';
 
 void main() {
   group('MorphingIcon Widget Tests', () {
-    testWidgets('should render with basic configuration',
-        (WidgetTester tester) async {
+    testWidgets('should render with basic configuration', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -37,16 +40,14 @@ void main() {
       expect(find.byIcon(Icons.play_arrow), findsOneWidget);
     });
 
-    testWidgets('should work with custom animation config',
-        (WidgetTester tester) async {
+    testWidgets('should work with custom animation config', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: MorphingIcon(
-              states: [
-                const Icon(Icons.star_border),
-                const Icon(Icons.star),
-              ],
+              states: const [Icon(Icons.star_border), Icon(Icons.star)],
               config: MorphingAnimationConfig.scale(
                 duration: const Duration(milliseconds: 500),
                 curve: Curves.easeInOut,
@@ -60,22 +61,145 @@ void main() {
       expect(find.byType(MorphingIcon), findsOneWidget);
     });
 
+    testWidgets('combined fade+scale+slide+rotate animates smoothly', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: MorphingIcon(
+              states: const [
+                Icon(Icons.favorite_border, size: 48, color: Colors.pink),
+                Icon(Icons.favorite, size: 48, color: Colors.pink),
+              ],
+              config: MorphingAnimationConfig.custom(
+                duration: const Duration(milliseconds: 600),
+                curve: Curves.linear,
+                parameters: {
+                  'fade': true,
+                  'fadeBegin': 0.0,
+                  'fadeEnd': 1.0,
+                  'scale': true,
+                  'scaleBegin': 0.5,
+                  'scaleEnd': 1.2,
+                  'slide': true,
+                  'slideBegin': const Offset(0, 0.25),
+                  'slideEnd': Offset.zero,
+                  'rotate': true,
+                  'rotationBegin': 0.0,
+                  'rotationEnd': math.pi,
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final element = tester.element(find.byType(MorphingIcon));
+      final controller = MorphingIcon.controllerOf(element)!;
+
+      controller.goTo(1);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      final opacities = tester
+          .widgetList<Opacity>(find.byType(Opacity))
+          .map((opacity) => opacity.opacity)
+          .toList();
+      expect(opacities, isNotEmpty);
+      expect(opacities.where((value) => value > 0 && value < 1), isNotEmpty);
+
+      final transforms = tester
+          .widgetList<Transform>(find.byType(Transform))
+          .map((transform) => transform.transform)
+          .toList();
+      final hasNonIdentity = transforms.any((matrix) => !matrix.isIdentity());
+      expect(hasNonIdentity, isTrue);
+    });
+
+    testWidgets('controllerOf provides access to internal controller', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: MorphingIcon.icons(
+              icons: const [Icons.circle, Icons.square],
+              config: const MorphingAnimationConfig.crossFade(
+                duration: Duration(milliseconds: 150),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final element = tester.element(find.byType(MorphingIcon));
+      final controller = MorphingIcon.controllerOf(element);
+
+      expect(controller, isNotNull);
+      expect(controller!.currentState, equals(0));
+
+      controller.goTo(1);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 75));
+
+      expect(controller.currentState, equals(1));
+
+      await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    });
+
     testWidgets('should handle empty states list', (WidgetTester tester) async {
+      expect(() => MorphingIcon(states: []), throwsAssertionError);
+    });
+
+    testWidgets('should handle invalid initial state', (
+      WidgetTester tester,
+    ) async {
       expect(
-        () => MorphingIcon(states: []),
+        () => MorphingIcon.icons(icons: [Icons.favorite], initialState: 5),
         throwsAssertionError,
       );
     });
+  });
 
-    testWidgets('should handle invalid initial state',
-        (WidgetTester tester) async {
-      expect(
-        () => MorphingIcon.icons(
-          icons: [Icons.favorite],
-          initialState: 5,
-        ),
-        throwsAssertionError,
+  group('MorphingIconController Tests', () {
+    test('previous state tracking works when switching states', () {
+      final controller = MorphingIconController(
+        states: [Container(), Container(), Container()],
+        vsync: const TestVSync(),
+        config: const MorphingAnimationConfig(),
       );
+
+      expect(controller.currentState, 0);
+      expect(controller.previousState, 0);
+
+      controller.goTo(1);
+      expect(controller.currentState, 1);
+      expect(controller.previousState, 0);
+
+      controller.next();
+      expect(controller.currentState, 2);
+      expect(controller.previousState, 1);
+
+      controller.dispose();
+    });
+
+    test('jumpTo updates state without animation reset', () {
+      final controller = MorphingIconController(
+        states: [Container(), Container(), Container()],
+        vsync: const TestVSync(),
+        config: const MorphingAnimationConfig(),
+      );
+
+      controller.jumpTo(2);
+      expect(controller.currentState, 2);
+      expect(controller.previousState, 0);
+
+      controller.replay();
+      expect(controller.currentState, 2);
+      expect(controller.previousState, 2);
+
+      controller.dispose();
     });
   });
 
@@ -128,17 +252,30 @@ void main() {
     });
 
     test('should create custom config correctly', () {
-      Widget customBuilder(Widget child, Animation<double> animation) =>
-          Opacity(opacity: animation.value, child: child);
-
       final config = MorphingAnimationConfig.custom(
         duration: const Duration(milliseconds: 800),
         curve: Curves.easeInOut,
-        builder: customBuilder,
+        parameters: const {
+          'fade': true,
+          'fadeBegin': 0.1,
+          'fadeEnd': 0.9,
+          'scale': true,
+          'scaleBegin': 0.8,
+          'scaleEnd': 1.4,
+          'slide': true,
+          'slideBegin': Offset(0, 0.2),
+          'slideEnd': Offset.zero,
+          'rotate': true,
+          'rotationBegin': 0.0,
+          'rotationEnd': math.pi,
+        },
       );
 
       expect(config.type, equals(MorphingAnimationType.custom));
-      expect(config.customBuilder, equals(customBuilder));
+      expect(config.parameters['fade'], isTrue);
+      expect(config.parameters['fadeBegin'], equals(0.1));
+      expect(config.parameters['scaleEnd'], equals(1.4));
+      expect(config.parameters['rotationEnd'], equals(math.pi));
     });
   });
 
