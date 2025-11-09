@@ -53,7 +53,7 @@ class _MorphingIconsDemoState extends State<MorphingIconsDemo> {
   int _previewStateIndex = 0;
   double _durationMs = 400;
   double _scaleFactor = 1.25;
-  double _slideOffset = 28;
+  double _slideOffset = 0.3;
   double _rotationTurns =
       0.6; // expressed in turns for UX, converted to radians
   Curve _selectedCurve = Curves.easeInOut;
@@ -291,7 +291,7 @@ class _MorphingIconsDemoState extends State<MorphingIconsDemo> {
                         config: MorphingAnimationConfig.slide(
                           duration: const Duration(milliseconds: 450),
                           curve: Curves.easeOutCubic,
-                          slideOffset: const Offset(0, -24),
+                          slideOffset: const Offset(0, -0.35),
                         ),
                       ),
                     ),
@@ -372,7 +372,7 @@ class _MorphingIconsDemoState extends State<MorphingIconsDemo> {
                         config: MorphingAnimationConfig.slide(
                           duration: const Duration(milliseconds: 400),
                           curve: Curves.easeInOut,
-                          slideOffset: const Offset(16, 0),
+                          slideOffset: const Offset(-1.0, 0),
                         ),
                       ),
                     ),
@@ -646,9 +646,9 @@ class _MorphingIconsDemoState extends State<MorphingIconsDemo> {
                     (_currentAnimationType == 4 && _customSlide))
                   _ConfigSlider(
                     label:
-                        'Slide Offset (${_slideOffset.toStringAsFixed(0)}px)',
+                        'Slide Offset (${(_slideOffset * 100).toStringAsFixed(0)}%)',
                     min: 0,
-                    max: 60,
+                    max: 1.5,
                     value: _slideOffset,
                     onChanged: (value) => setState(() {
                       _slideOffset = value;

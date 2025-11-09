@@ -229,7 +229,7 @@ void main() {
     });
 
     test('should create slide config correctly', () {
-      const slideOffset = Offset(0, -30);
+      const slideOffset = Offset(0, -0.3);
       final config = MorphingAnimationConfig.slide(
         duration: const Duration(milliseconds: 350),
         curve: Curves.easeInOut,

@@ -6,6 +6,12 @@ A Flutter package that provides smooth icon morphing animations between differen
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Flutter](https://img.shields.io/badge/Flutter-3.32+-blue.svg)](https://flutter.dev)
 
+## Preview
+
+![Morphing animations preview](assets/animations.gif)
+
+![Interactive configuration preview](assets/interactive.gif)
+
 ## Features
 
 - 🎨 **Smooth Animations**: Beautiful morphing transitions between icon states
@@ -89,13 +95,17 @@ MorphingAnimationConfig.scale(
 ### 3. Slide
 Slide transition with customizable offset.
 
+The `slideOffset` uses fractional units relative to the widget's size (e.g. `Offset(0, -0.3)` moves the widget up by 30% of its height).
+
 ```dart
 MorphingAnimationConfig.slide(
   duration: Duration(milliseconds: 350),
   curve: Curves.easeInOut,
-  slideOffset: Offset(0, -30),
+  slideOffset: Offset(0, -0.3),
 )
 ```
+
+If you need a stronger motion without the widget overflowing its bounds, you can increase the magnitude (e.g. `Offset(0, -1.2)`); the animation is automatically clipped to the morphing icon's container.
 
 ### 4. Rotate
 Rotation animation with customizable angle.

@@ -74,7 +74,7 @@ class MorphingAnimationConfig {
   MorphingAnimationConfig.slide({
     required this.duration,
     required this.curve,
-    Offset slideOffset = const Offset(0, -20),
+    Offset slideOffset = const Offset(0, -0.25),
   }) : type = MorphingAnimationType.slide,
        customBuilder = null,
        parameters = {'slideOffset': slideOffset};

@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+_No unreleased changes yet._
+
+## [0.2.0] - 2025-11-09
+
+### Added
+- README preview section featuring animation and interactive GIF demos ahead of the feature list.
+
+### Changed
+- Slide animation defaults now use fractional offsets and are clipped to the widget’s bounds for consistent, container-scoped motion.
+
+### Fixed
+- Fixed slide transition to work correctly when combined with fade, scale, or rotate effects using proper `SlideTransition` widget.
+- Improved custom animation implementation using `AnimatedSwitcher` with stacked transition widgets for reliable multi-effect animations.
+
 ## [0.1.0] - 2025-11-09
 
 ### Added
@@ -43,5 +59,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Getting started guide
 - Example project included
 
+[0.2.0]: https://github.com/Dhia-Bechattaoui/flutter_morphing_icons/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Dhia-Bechattaoui/flutter_morphing_icons/releases/tag/v0.1.0
 [0.0.1]: https://github.com/Dhia-Bechattaoui/flutter_morphing_icons/releases/tag/v0.0.1

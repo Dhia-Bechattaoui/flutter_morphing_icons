@@ -1,5 +1,3 @@
-import 'dart:ui' show lerpDouble;
-
 import 'package:flutter/material.dart';
 import 'morphing_icon_controller.dart';
 import 'morphing_animation_types.dart';
@@ -73,7 +71,12 @@ class MorphingIcon extends StatefulWidget {
   /// Returns the internal [MorphingIconController] for the nearest
   /// [MorphingIcon] ancestor in the widget tree, or `null` if none exists.
   static MorphingIconController? controllerOf(BuildContext context) {
-    final state = context.findAncestorStateOfType<_MorphingIconState>();
+    _MorphingIconState? state;
+    if (context is StatefulElement && context.state is _MorphingIconState) {
+      state = context.state as _MorphingIconState;
+    } else {
+      state = context.findAncestorStateOfType<_MorphingIconState>();
+    }
     return state?._controller;
   }
 
@@ -174,82 +177,63 @@ class _MorphingIconState extends State<MorphingIcon>
 
     final customBuilder = config.customBuilder;
 
-    final previousIndex = _controller.previousState;
-    final currentIndex = _controller.currentState;
+    return ClipRect(
+      child: AnimatedSwitcher(
+        duration: config.duration,
+        switchInCurve: config.curve,
+        switchOutCurve: config.curve.flipped,
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          final curved = animation.drive(CurveTween(curve: config.curve));
+          Widget current = child;
 
-    return AnimatedBuilder(
-      animation: _controller.animation,
-      builder: (context, _) {
-        final t = _controller.animation.value.clamp(0.0, 1.0);
-        final incomingProgress = t;
-        final outgoingProgress = t;
-
-        Widget buildTransformed(Widget child, double progress, bool entering) {
-          Widget result = child;
+          if (fadeEnabled) {
+            final fadeAnim = Tween<double>(
+              begin: fadeBegin,
+              end: fadeEnd,
+            ).animate(curved);
+            current = FadeTransition(opacity: fadeAnim, child: current);
+          }
 
           if (scaleEnabled) {
-            final double start = entering ? scaleBegin : scaleEnd;
-            final double end = entering ? scaleEnd : scaleBegin;
-            final double scaleValue = _lerpDoubleNonNull(start, end, progress);
-            result = Transform.scale(scale: scaleValue, child: result);
+            final scaleAnim = Tween<double>(
+              begin: scaleBegin,
+              end: scaleEnd,
+            ).animate(curved);
+            current = ScaleTransition(scale: scaleAnim, child: current);
           }
 
           if (rotateEnabled) {
-            final double start = entering ? rotationBegin : rotationEnd;
-            final double end = entering ? rotationEnd : rotationBegin;
-            final double angleValue = _lerpDoubleNonNull(start, end, progress);
-            result = Transform.rotate(angle: angleValue, child: result);
-          }
-
-          if (slideEnabled) {
-            final Offset start = entering ? slideBegin : slideEnd;
-            final Offset end = entering ? slideEnd : slideBegin;
-            final Offset offsetValue = Offset.lerp(start, end, progress) ?? end;
-            result = Transform.translate(offset: offsetValue, child: result);
-          }
-
-          if (customBuilder != null) {
-            result = customBuilder(
-              result,
-              AlwaysStoppedAnimation<double>(progress),
+            final rotationAnim = Tween<double>(
+              begin: rotationBegin,
+              end: rotationEnd,
+            ).animate(curved);
+            current = AnimatedBuilder(
+              animation: rotationAnim,
+              builder: (context, child) =>
+                  Transform.rotate(angle: rotationAnim.value, child: child),
+              child: current,
             );
           }
 
-          if (fadeEnabled) {
-            final double start = entering ? fadeBegin : fadeEnd;
-            final double end = entering ? fadeEnd : fadeBegin;
-            final double opacity = _lerpDoubleNonNull(
-              start,
-              end,
-              progress,
-            ).clamp(0.0, 1.0);
-            result = Opacity(opacity: opacity, child: result);
+          if (slideEnabled) {
+            final slideAnim = Tween<Offset>(
+              begin: slideBegin,
+              end: slideEnd,
+            ).animate(curved);
+            current = SlideTransition(position: slideAnim, child: current);
           }
 
-          return result;
-        }
+          if (customBuilder != null) {
+            current = customBuilder(current, curved);
+          }
 
-        final Widget incoming = buildTransformed(
-          widget.states[currentIndex],
-          incomingProgress,
-          true,
-        );
-
-        if (previousIndex == currentIndex) {
-          return incoming;
-        }
-
-        final Widget outgoing = buildTransformed(
-          widget.states[previousIndex],
-          outgoingProgress,
-          false,
-        );
-
-        return Stack(
-          alignment: Alignment.center,
-          children: [outgoing, incoming],
-        );
-      },
+          return current;
+        },
+        child: KeyedSubtree(
+          key: ValueKey('${_currentState}_$_transitionSeed'),
+          child: widget.states[_currentState],
+        ),
+      ),
     );
   }
 
@@ -310,25 +294,27 @@ class _MorphingIconState extends State<MorphingIcon>
 
   Widget _buildSlideAnimation() {
     final slideOffset =
-        _controller.config.parameters['slideOffset'] ?? const Offset(0, -20);
-    return AnimatedSwitcher(
-      duration: _controller.config.duration,
-      transitionBuilder: (Widget child, Animation<double> animation) {
-        final curved = animation.drive(
-          CurveTween(curve: _controller.config.curve),
-        );
-        final slide = curved.drive(
-          Tween<Offset>(begin: slideOffset, end: Offset.zero),
-        );
+        _controller.config.parameters['slideOffset'] ?? const Offset(0, -0.25);
+    return ClipRect(
+      child: AnimatedSwitcher(
+        duration: _controller.config.duration,
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          final curved = animation.drive(
+            CurveTween(curve: _controller.config.curve),
+          );
+          final slide = curved.drive(
+            Tween<Offset>(begin: slideOffset, end: Offset.zero),
+          );
 
-        return FadeTransition(
-          opacity: curved,
-          child: SlideTransition(position: slide, child: child),
-        );
-      },
-      child: KeyedSubtree(
-        key: ValueKey('${_currentState}_$_transitionSeed'),
-        child: widget.states[_currentState],
+          return FadeTransition(
+            opacity: curved,
+            child: SlideTransition(position: slide, child: child),
+          );
+        },
+        child: KeyedSubtree(
+          key: ValueKey('${_currentState}_$_transitionSeed'),
+          child: widget.states[_currentState],
+        ),
       ),
     );
   }
@@ -391,8 +377,4 @@ class _MorphingIconState extends State<MorphingIcon>
     _controller.dispose();
     super.dispose();
   }
-}
-
-double _lerpDoubleNonNull(double a, double b, double t) {
-  return lerpDouble(a, b, t) ?? (a + (b - a) * t);
 }
