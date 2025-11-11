@@ -8,9 +8,10 @@ A Flutter package that provides smooth icon morphing animations between differen
 
 ## Preview
 
-![Morphing animations preview](assets/animations.gif)
-
-![Interactive configuration preview](assets/interactive.gif)
+<div style="display: flex; gap: 10px;">
+  <img src="assets/animations.gif" alt="Morphing animations preview" width="300">
+  <img src="assets/interactive.gif" alt="Interactive configuration preview" width="300">
+</div>
 
 ## Features
 
